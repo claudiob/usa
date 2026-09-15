@@ -1,0 +1,12 @@
+{
+  "name": "USA",
+  "short_name": "USA",
+  "description": "Every state, county, city and ZIP code of the United States, as five tables.",
+  "icons": [
+    { "src": "web-app-manifest-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "web-app-manifest-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#0d2b52",
+  "background_color": "#f4e9d2",
+  "display": "standalone"
+}

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img"
+     aria-label="A red star on the lower forty-eight states">
+  <!--
+    The mark the page draws large in its seal, cut down to what a 16-pixel tab can carry:
+    the coast is the coarse outline, the ring of thirteen stars and the gold rules are gone,
+    and one red star stands where the seal puts it. Set rx to 0 for the Apple touch icon and
+    the avatar: iOS masks its own corner and every avatar is shown round.
+  -->
+  <rect width="512" height="512" rx="96" fill="#0d2b52"/>
+  <g transform="translate(46 126) scale(0.42)">
+    <path fill="#f4e9d2" d="M5 15 L12 170 L42 278 L76 363 L134 410 L237 439 L314 427 L373 496
+      L432 531 L468 573 L509 493 L573 491 L627 461 L712 498 L742 590 L760 575 L746 496 L741 446
+      L799 367 L839 342 L830 298 L864 211 L920 181 L932 134 L983 104 L949 40 L907 99 L814 141
+      L746 181 L710 166 L712 124 L683 79 L660 170 L636 183 L631 97 L686 62 L629 38 L558 55
+      L505 0 L34 0 Z"/>
+  </g>
+  <path fill="#b31942" d="M252 140 L278.5 221.5 L364.2 221.5 L294.9 271.9 L321.4 353.5
+                          L252 303.1 L182.6 353.5 L209.1 271.9 L139.8 221.5 L225.5 221.5 Z"/>
+</svg>

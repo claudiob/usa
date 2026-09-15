@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>USA — the geography of the United States, in five tables</title>
+<meta name="description" content="A Rails engine holding every state, county, city and ZIP code of the United States as five tables your app joins to. One copy of the country, maintained once.">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-96x96.png" type="image/png" sizes="96x96">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#0d2b52">
+<meta property="og:title" content="USA">
+<meta property="og:description" content="Every state, county, city and ZIP code of the United States, as five tables a Rails app joins to. One copy, held once and held right.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://claudiob.github.io/usa/avatar.png">
+<style>
+  :root {
+    --paper: #f4e9d2;
+    --paper-2: #eadec1;
+    --ink: #221a0e;
+    --ink-2: #4a3a26;
+    --rule: #bfa87c;
+    --red: #9d1b2e;
+    --red-lit: #c8324a;
+    --navy: #0d2b52;
+    --navy-2: #071c38;
+    --cream: #f7efdd;
+    --gold: #7d5810;
+    --gold-lit: #e3b451;
+    --display: Rockwell, 'Rockwell Nova', 'Bookman Old Style', 'Playfair Display', Georgia, serif;
+    --text: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box }
+  html { -webkit-text-size-adjust: 100% }
+
+  body {
+    margin: 0;
+    background-color: var(--paper);
+    background-image:
+      radial-gradient(circle at 18% 8%, rgba(150,116,56, 0.13), transparent 52%),
+      radial-gradient(circle at 88% 74%, rgba(120, 90, 45, 0.12), transparent 48%);
+    color: var(--ink);
+    font-family: var(--text);
+    font-size: 17px;
+    line-height: 1.66;
+    overflow-wrap: break-word;
+  }
+
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 clamp(16px, 4vw, 44px) }
+
+  h1, h2, h3, .wood { font-family: var(--display); text-transform: uppercase; line-height: 1.06 }
+  h1 { font-size: clamp(29px, 5.2vw, 53px); letter-spacing: 0.005em; margin: 0 0 18px }
+  h2 { font-size: clamp(23px, 3.6vw, 36px); letter-spacing: 0.02em; margin: 0 0 14px }
+  h3 { font-size: 15px; letter-spacing: 0.16em; margin: 0 0 6px }
+  p { margin: 0 0 16px }
+  p:last-child { margin-bottom: 0 }
+
+  .press-light {
+    color: var(--cream);
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.45), 0 3px 0 rgba(0, 0, 0, 0.3),
+                 0 6px 14px rgba(0, 0, 0, 0.5);
+  }
+  .press-dark {
+    color: var(--red);
+    text-shadow: 1px 1px 0 var(--paper), 2px 2px 0 rgba(34, 26, 14, 0.3),
+                 3px 5px 9px rgba(34, 26, 14, 0.22);
+  }
+
+  a { color: var(--red); text-decoration: none; border-bottom: 1px solid rgba(157, 27, 46, 0.45) }
+  a:hover, a:focus { color: var(--ink); border-bottom-color: var(--ink) }
+  .onnavy a, a.onnavy { color: var(--gold-lit); border-bottom-color: rgba(227, 180, 81, 0.5) }
+  .onnavy a:hover, .onnavy a:focus, a.onnavy:hover { color: var(--cream); border-bottom-color: var(--cream) }
+
+  .label {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.3em;
+    text-transform: uppercase; color: var(--red); margin: 0 0 10px;
+  }
+  .onnavy .label { color: var(--gold-lit) }
+  .lede { font-size: clamp(17px, 1.5vw, 20.5px); line-height: 1.6 }
+  .quiet { color: var(--ink-2) }
+
+  code {
+    font-family: var(--mono); font-size: 0.88em;
+    background: rgba(157, 27, 46, 0.09); border: 1px solid rgba(157, 27, 46, 0.22);
+    border-radius: 2px; padding: 1px 5px;
+  }
+  pre {
+    margin: 0; padding: 18px clamp(14px, 3vw, 22px); overflow-x: auto;
+    background: var(--navy-2); color: var(--cream); border-left: 5px solid var(--red);
+    font-family: var(--mono); font-size: 13.5px; line-height: 1.8;
+    box-shadow: 0 12px 26px -18px rgba(34, 26, 14, 0.9);
+  }
+  pre code { background: none; border: 0; padding: 0; font-size: inherit; color: inherit }
+  pre .c { color: #bda182 }
+  pre .s { color: var(--gold-lit) }
+
+  /* ---- stars, stripes and engraved rules ---- */
+  .stripes { height: 14px; background: repeating-linear-gradient(180deg, var(--red) 0 2px, var(--paper) 2px 4px) }
+  .stripes.tight { height: 8px }
+  .orn { display: flex; align-items: center; gap: 14px; margin: 0 0 26px }
+  .orn::before, .orn::after {
+    content: ''; flex: 1; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--rule), transparent);
+  }
+  .starfield { position: absolute; inset: 0; width: 100%; height: 100% }
+
+  /* ---- masthead ---- */
+  .bar { background: var(--navy-2) }
+  .bar .wrap {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px 22px; flex-wrap: wrap; padding-top: 14px; padding-bottom: 14px;
+  }
+  .brand { display: flex; align-items: center; gap: 11px; color: var(--cream) }
+  .brand span { font-family: var(--display); font-size: 21px; letter-spacing: 0.22em }
+  .ver {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.1em; color: var(--paper);
+    border: 1px solid rgba(227, 180, 81, 0.55); border-radius: 2px; padding: 2px 7px;
+  }
+  .bar nav { display: flex; gap: 20px; font-size: 14.5px; font-family: var(--mono); letter-spacing: 0.02em }
+
+  /* ---- hero ---- */
+  .hero { position: relative; background: var(--navy); color: var(--cream); overflow: hidden }
+  .hero .wrap { position: relative; padding-top: clamp(40px, 6vw, 74px); padding-bottom: clamp(40px, 6vw, 74px) }
+  .split { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: clamp(28px, 4vw, 56px); align-items: center }
+  @media (max-width: 880px) { .split { grid-template-columns: minmax(0, 1fr) } .seal { max-width: 320px; margin: 0 auto } }
+  .ribbon {
+    display: inline-block; background: var(--red); color: var(--cream);
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.28em; text-transform: uppercase;
+    padding: 7px 26px; margin: 0 0 20px;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 13px) 50%, 100% 100%, 0 100%, 13px 50%);
+  }
+  .seal { width: 100%; height: auto; display: block; filter: drop-shadow(0 16px 26px rgba(0, 0, 0, 0.45)) }
+
+  /* ---- handbill: the install card ---- */
+  .bill {
+    background: var(--paper); color: var(--ink); border: 2px solid var(--ink);
+    outline: 1px solid var(--ink); outline-offset: 3px;
+    padding: clamp(18px, 3vw, 28px); margin: 34px 0 0;
+    box-shadow: 0 18px 34px -22px rgba(0, 0, 0, 0.9);
+  }
+  .bill h3 { color: var(--red) }
+  .bill pre { margin-top: 12px }
+  .steps { list-style: none; margin: 14px 0 0; padding: 0; counter-reset: step }
+  .steps li {
+    position: relative; padding: 9px 0 9px 40px; border-top: 1px solid var(--rule);
+    font-family: var(--mono); font-size: 13.5px;
+  }
+  .steps li::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 24px; height: 24px; border-radius: 50%; background: var(--red); color: var(--cream);
+    display: grid; place-items: center; font-size: 12px;
+  }
+  .steps b { display: block; font-family: var(--text); font-weight: normal; font-size: 14.5px; color: var(--ink-2) }
+
+  /* ---- sections on paper ---- */
+  section { padding: clamp(44px, 6vw, 78px) 0 }
+  section.dark { background: var(--navy); color: var(--cream) }
+  section.dark h2 { color: var(--cream) }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: clamp(20px, 3vw, 34px) }
+
+  /* ---- sepia plates ---- */
+  .plate { background: #2a1c0e; padding: 7px; box-shadow: 0 16px 30px -20px rgba(34, 26, 14, 0.95) }
+  .plate svg {
+    display: block; width: 100%; height: auto;
+    clip-path: polygon(0 4%, 9% 0, 23% 5%, 39% 1%, 56% 5%, 73% 0, 89% 4%, 100% 1%,
+                       100% 95%, 90% 100%, 74% 95%, 58% 100%, 42% 95%, 26% 100%, 12% 96%, 0 99%);
+  }
+  .plate + h3 { margin-top: 16px; color: var(--red) }
+  .cap { font-size: 15px; margin-top: 4px }
+
+  /* ---- the manifest table ---- */
+  .scroll { overflow-x: auto }
+  .sheet { width: 100%; min-width: 600px; border-collapse: collapse; font-size: 15.5px; line-height: 1.5 }
+  .sheet th {
+    text-align: left; background: var(--navy); color: var(--cream); padding: 11px 13px;
+    font-family: var(--display); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .sheet td { padding: 12px 13px; border-bottom: 1px solid var(--rule); vertical-align: top }
+  .sheet tbody tr:nth-child(odd) { background: rgba(191, 168, 124, 0.18) }
+  .sheet td:first-child { font-family: var(--mono); font-size: 13.5px; color: var(--red); white-space: nowrap }
+  .sheet td:nth-child(2) { font-family: var(--mono); font-size: 13.5px; white-space: nowrap }
+  .sheet td:nth-child(3) { font-family: var(--display); font-size: 19px; white-space: nowrap }
+
+  /* ---- colophon ---- */
+  footer { background: var(--navy-2); color: var(--cream) }
+  footer .wrap { padding-top: 34px; padding-bottom: 38px }
+  .feet {
+    display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; justify-content: space-between;
+    font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em; margin-top: 22px;
+  }
+  .twolinks { display: flex; flex-wrap: wrap; gap: 12px 26px; font-size: 15px; font-family: var(--mono) }
+</style>
+</head>
+<body>
+
+<div class="bar onnavy">
+  <div class="wrap">
+    <span class="brand">
+      <svg width="30" height="30" viewBox="0 0 512 512" aria-hidden="true" focusable="false">
+        <rect width="512" height="512" rx="96" fill="#0d2b52"/>
+        <g transform="translate(46 126) scale(0.42)">
+          <path fill="#f4e9d2" d="M5 15 L12 170 L42 278 L76 363 L134 410 L237 439 L314 427 L373 496 L432 531 L468 573 L509 493 L573 491 L627 461 L712 498 L742 590 L760 575 L746 496 L741 446 L799 367 L839 342 L830 298 L864 211 L920 181 L932 134 L983 104 L949 40 L907 99 L814 141 L746 181 L710 166 L712 124 L683 79 L660 170 L636 183 L631 97 L686 62 L629 38 L558 55 L505 0 L34 0 Z"/>
+        </g>
+        <path fill="#b31942" d="M252 140 L278.5 221.5 L364.2 221.5 L294.9 271.9 L321.4 353.5 L252 303.1 L182.6 353.5 L209.1 271.9 L139.8 221.5 L225.5 221.5 Z"/>
+      </svg>
+      <span>USA</span>
+      <span class="ver">0.1.0</span>
+    </span>
+    <nav>
+      <a href="https://github.com/claudiob/usa">Source</a>
+      <a href="https://rubydoc.info/gems/usa">Reference</a>
+    </nav>
+  </div>
+</div>
+
+<div class="stripes" role="presentation"></div>
+
+<header class="hero onnavy">
+  <svg class="starfield" aria-hidden="true" focusable="false" preserveAspectRatio="none">
+    <defs>
+      <pattern id="stars" width="104" height="104" patternUnits="userSpaceOnUse" patternTransform="rotate(-8)">
+        <path fill="#f7efdd" opacity="0.10" d="M26 8 L31 22 L46 22 L34 31 L38 45 L26 36 L14 45 L18 31 L6 22 L21 22 Z"/>
+        <path fill="#f7efdd" opacity="0.06" d="M78 60 L82 71 L94 71 L84 78 L88 90 L78 83 L68 90 L72 78 L62 71 L74 71 Z"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#stars)"/>
+  </svg>
+
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <p class="ribbon">For the good of the country</p>
+        <h1 class="press-light">Every state, county, city and ZIP code of the United States</h1>
+        <p class="lede">A Rails engine holding the geography of the country as five tables your app
+          joins to. Fifty states and the District. Three thousand one hundred and forty-four
+          counties. Some thirty-two thousand Census places. Forty thousand nine hundred and
+          seventy-seven ZIP codes.</p>
+        <p class="lede">Held once, and held right.</p>
+      </div>
+
+      <svg class="seal" viewBox="0 0 400 400" aria-hidden="true" focusable="false">
+        <circle cx="200" cy="200" r="196" fill="#071c38"/>
+        <circle cx="200" cy="200" r="196" fill="none" stroke="#e3b451" stroke-width="3"/>
+        <circle cx="200" cy="200" r="183" fill="none" stroke="#e3b451" stroke-width="1.5"/>
+        <circle cx="200" cy="200" r="146" fill="#9d1b2e"/>
+        <circle cx="200" cy="200" r="146" fill="none" stroke="#e3b451" stroke-width="3"/>
+        <circle cx="200" cy="200" r="126" fill="#f4e9d2"/>
+        <g fill="#e3b451">
+          <g transform="translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+          <g transform="rotate(27.7 200 200) translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+          <g transform="rotate(55.4 200 200) translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+          <g transform="rotate(83.1 200 200) translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+          <g transform="rotate(110.8 200 200) translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+          <g transform="rotate(138.5 200 200) translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+          <g transform="rotate(166.2 200 200) translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+          <g transform="rotate(193.9 200 200) translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+          <g transform="rotate(221.6 200 200) translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+          <g transform="rotate(249.3 200 200) translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+          <g transform="rotate(277 200 200) translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+          <g transform="rotate(304.7 200 200) translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+          <g transform="rotate(332.4 200 200) translate(200 35)"><path d="M0 -11 L2.6 -3.4 L10.5 -3.4 L4.1 1.3 L6.5 8.9 L0 4.2 L-6.5 8.9 L-4.1 1.3 L-10.5 -3.4 L-2.6 -3.4 Z"/></g>
+        </g>
+        <g transform="translate(83 116) scale(0.234)">
+          <path fill="#0d2b52" d="M5 15 L17 67 L15 141 L10 213 L42 278 L60 320 L76 363 L110 378 L134 410 L175 404 L237 439 L285 439 L285 427 L314 427 L344 489 L373 496 L400 476 L432 531 L468 573 L472 526 L509 493 L529 478 L573 491 L604 496 L627 461 L678 478 L712 498 L717 533 L742 590 L760 575 L746 496 L741 446 L765 402 L799 367 L839 342 L830 298 L847 260 L864 211 L900 191 L920 181 L918 151 L932 134 L983 104 L968 82 L949 40 L927 77 L907 99 L876 99 L853 99 L834 112 L822 122 L814 141 L777 141 L780 151 L734 186 L704 181 L710 166 L722 149 L700 130 L718 124 L707 100 L684 80 L683 76 L668 104 L655 124 L656 146 L650 172 L634 177 L629 149 L632 120 L644 92 L643 80 L658 74 L680 74 L686 62 L638 61 L629 38 L587 57 L558 55 L555 25 L517 7 L505 0 L471 0 L34 0 L20 20 Z"/>
+        </g>
+        <path fill="#9d1b2e" d="M200 152 L211 186 L247 186 L218 207 L229 241 L200 220 L171 241 L182 207 L153 186 L189 186 Z"/>
+      </svg>
+    </div>
+
+    <div class="bill">
+      <p class="label">Raise it in three commands</p>
+      <h3>In your Gemfile</h3>
+      <pre><code>gem <span class="s">'usa'</span>, <span class="s">'~> 0.1.0'</span></code></pre>
+      <ol class="steps">
+        <li>bin/rails g usa:install<b>Copies the six migrations into your app, under timestamps of its own. There is nothing to configure.</b></li>
+        <li>bin/rails db:migrate<b>Creates the five tables and writes every row in them. Allow about a minute.</b></li>
+        <li>bin/rails db:usa:seed<b>For a database made from a schema dump, which carries the tables and none of the rows. Every write is an upsert, so it is safe to run again.</b></li>
+      </ol>
+    </div>
+  </div>
+</header>
+
+<div class="stripes" role="presentation"></div>
+
+<main>
+
+<section>
+  <div class="wrap">
+    <p class="label">The state of the union, before</p>
+    <h2 class="press-dark">Three copies of one country</h2>
+    <div class="orn" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" focusable="false"><path fill="#9d1b2e" d="M12 0 L15 9 L24 12 L15 15 L12 24 L9 15 L0 12 L9 9 Z"/></svg>
+    </div>
+    <p class="lede quiet">Three applications each needed an address to mean something, so each grew
+      a CSV of its own and a backfill to load it. Nobody loaded the same file twice, and nothing
+      told any of them when the Census moved. The copies drifted, quietly, for years.</p>
+
+    <div class="cols" style="margin-top: 34px">
+      <div>
+        <div class="plate">
+          <svg viewBox="0 0 320 200" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#e7cfa4"/><stop offset="55%" stop-color="#c9a473"/>
+                <stop offset="100%" stop-color="#8a6437"/>
+              </linearGradient>
+              <filter id="grain1">
+                <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3"/>
+                <feColorMatrix type="saturate" values="0"/>
+                <feComponentTransfer><feFuncA type="linear" slope="0.5"/></feComponentTransfer>
+                <feBlend mode="multiply" in2="SourceGraphic"/>
+              </filter>
+            </defs>
+            <g filter="url(#grain1)">
+              <rect width="320" height="200" fill="url(#sky1)"/>
+              <circle cx="250" cy="72" r="38" fill="#f0dcb6" opacity="0.85"/>
+              <path fill="#7a5730" opacity="0.65" d="M0 170 L0 132 L26 130 L38 116 L92 114 L104 130 L150 134 L186 124 L230 132 L280 128 L320 138 L320 170 Z"/>
+              <rect x="0" y="166" width="320" height="34" fill="#6b4a27"/>
+              <g fill="#2a1c0e">
+                <path d="M96 106 C84 116 80 134 84 150 C90 136 92 122 104 114 Z"/>
+                <ellipse cx="150" cy="118" rx="48" ry="22"/>
+                <ellipse cx="112" cy="116" rx="24" ry="22"/>
+                <ellipse cx="192" cy="116" rx="20" ry="18"/>
+                <path d="M186 104 L212 68 L232 72 L206 116 Z"/>
+                <path d="M210 62 L248 56 L256 66 L246 78 L222 82 L206 74 Z"/>
+                <path d="M214 62 L216 48 L226 60 Z"/>
+                <path d="M196 126 L206 126 L208 168 L198 168 Z"/>
+                <path d="M180 126 L190 126 L186 168 L176 168 Z"/>
+                <path d="M118 128 L130 128 L124 168 L112 168 Z"/>
+                <path d="M102 126 L114 126 L106 168 L94 168 Z"/>
+                <path d="M142 98 L152 66 L168 68 L164 100 Z"/>
+                <circle cx="159" cy="60" r="9"/>
+                <path d="M160 74 L186 84 L184 91 L156 85 Z"/>
+                <path d="M148 94 L160 94 L164 116 L152 120 Z"/>
+                <ellipse cx="159" cy="54" rx="23" ry="4.5"/>
+                <path d="M149 54 L151 40 Q159 35 167 40 L169 54 Z"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <h3>The first copy</h3>
+        <p class="cap quiet">Places off the 2010 list, still riding. 3,092 towns that were never
+          added, and 8,893 the Census has since let go.</p>
+      </div>
+
+      <div>
+        <div class="plate">
+          <svg viewBox="0 0 320 200" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#e7cfa4"/><stop offset="55%" stop-color="#c9a473"/>
+                <stop offset="100%" stop-color="#8a6437"/>
+              </linearGradient>
+              <filter id="grain2">
+                <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3"/>
+                <feColorMatrix type="saturate" values="0"/>
+                <feComponentTransfer><feFuncA type="linear" slope="0.5"/></feComponentTransfer>
+                <feBlend mode="multiply" in2="SourceGraphic"/>
+              </filter>
+            </defs>
+            <g filter="url(#grain2)">
+              <rect width="320" height="200" fill="url(#sky2)"/>
+              <path fill="#7a5730" opacity="0.6" d="M0 140 L48 88 L86 122 L126 64 L180 128 L226 92 L268 124 L320 84 L320 176 L0 176 Z"/>
+              <rect x="0" y="172" width="320" height="28" fill="#6b4a27"/>
+              <g stroke="#2a1c0e" stroke-width="5" fill="none" stroke-linecap="round">
+                <path d="M160 96 L130 172 M160 96 L160 172 M160 96 L192 172"/>
+                <path d="M138 138 L182 138"/>
+              </g>
+              <g fill="#2a1c0e">
+                <rect x="146" y="78" width="30" height="20" rx="3"/>
+                <rect x="120" y="82" width="82" height="9" rx="4.5"/>
+                <circle cx="161" cy="70" r="6"/>
+              </g>
+              <circle cx="60" cy="52" r="26" fill="none" stroke="#2a1c0e" stroke-width="3"/>
+              <path fill="#2a1c0e" d="M60 22 L66 46 L90 52 L66 58 L60 82 L54 58 L30 52 L54 46 Z"/>
+              <path d="M200 168 L268 150 L300 156" stroke="#2a1c0e" stroke-width="3" fill="none" stroke-dasharray="9 7"/>
+            </g>
+          </svg>
+        </div>
+        <h3>The second copy</h3>
+        <p class="cap quiet">Counties surveyed before Connecticut gave up its eight and drew nine
+          planning regions, and before Alaska redrew six of its census areas.</p>
+      </div>
+
+      <div>
+        <div class="plate">
+          <svg viewBox="0 0 320 200" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="sky3" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#e7cfa4"/><stop offset="55%" stop-color="#c9a473"/>
+                <stop offset="100%" stop-color="#8a6437"/>
+              </linearGradient>
+              <filter id="grain3">
+                <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3"/>
+                <feColorMatrix type="saturate" values="0"/>
+                <feComponentTransfer><feFuncA type="linear" slope="0.5"/></feComponentTransfer>
+                <feBlend mode="multiply" in2="SourceGraphic"/>
+              </filter>
+            </defs>
+            <g filter="url(#grain3)">
+              <rect width="320" height="200" fill="url(#sky3)"/>
+              <circle cx="66" cy="52" r="24" fill="#f0dcb6" opacity="0.8"/>
+              <g fill="#2a1c0e">
+                <rect x="10" y="98" width="30" height="54"/>
+                <rect x="44" y="74" width="24" height="78"/>
+                <rect x="72" y="110" width="28" height="42"/>
+                <path d="M104 152 L104 58 L119 38 L134 58 L134 152 Z"/>
+                <rect x="138" y="86" width="32" height="66"/>
+                <rect x="174" y="116" width="22" height="36"/>
+                <rect x="200" y="78" width="28" height="74"/>
+                <rect x="232" y="104" width="20" height="48"/>
+                <rect x="256" y="88" width="28" height="64"/>
+                <rect x="288" y="112" width="24" height="40"/>
+              </g>
+              <g fill="#e7cfa4" opacity="0.5">
+                <rect x="16" y="106" width="6" height="8"/><rect x="28" y="106" width="6" height="8"/>
+                <rect x="16" y="122" width="6" height="8"/><rect x="28" y="122" width="6" height="8"/>
+                <rect x="50" y="84" width="6" height="8"/><rect x="60" y="84" width="6" height="8"/>
+                <rect x="50" y="102" width="6" height="8"/><rect x="60" y="102" width="6" height="8"/>
+                <rect x="144" y="96" width="7" height="9"/><rect x="157" y="96" width="7" height="9"/>
+                <rect x="144" y="116" width="7" height="9"/><rect x="157" y="116" width="7" height="9"/>
+                <rect x="206" y="88" width="7" height="9"/><rect x="216" y="88" width="7" height="9"/>
+                <rect x="262" y="98" width="7" height="9"/><rect x="273" y="98" width="7" height="9"/>
+              </g>
+              <rect x="0" y="152" width="320" height="48" fill="#b08051"/>
+              <g fill="#2a1c0e" opacity="0.32">
+                <rect x="10" y="152" width="30" height="26"/><rect x="44" y="152" width="24" height="38"/>
+                <rect x="72" y="152" width="28" height="20"/><rect x="104" y="152" width="30" height="44"/>
+                <rect x="138" y="152" width="32" height="32"/><rect x="174" y="152" width="22" height="17"/>
+                <rect x="200" y="152" width="28" height="36"/><rect x="232" y="152" width="20" height="23"/>
+                <rect x="256" y="152" width="28" height="31"/><rect x="288" y="152" width="24" height="19"/>
+              </g>
+              <g stroke="#e7cfa4" stroke-width="2" opacity="0.4">
+                <path d="M0 162 L320 162 M0 174 L320 174 M0 186 L320 186"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <h3>The third copy</h3>
+        <p class="cap quiet">ZIP codes with nothing beside them — no city, no time zone — and
+          1,679 of the country’s missing outright.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="dark onnavy">
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <p class="label">The state of the union, after</p>
+        <h2 class="press-light">One copy, maintained once</h2>
+        <p class="lede">An app that adopts it stops carrying a CSV, a backfill and a table nobody
+          owned. What it carries instead is a line in a Gemfile. The country is versioned, the
+          changes are in a changelog, and every app that installs it is on the same vintage,
+          because the same gem put it there.</p>
+        <p class="lede">A release that adds rows is <code>bundle update usa</code> and one seed.
+          Every write is an upsert keyed on the code or the FIPS, so it inserts what is missing,
+          updates what this gem owns, and leaves the id of every row you already had exactly where
+          it was. Columns of your own, added in a migration of your own, survive every seed.</p>
+      </div>
+      <div>
+        <svg viewBox="0 0 340 260" aria-hidden="true" focusable="false" style="width: 100%; height: auto">
+          <g fill="none" stroke="#e3b451" stroke-width="2.2" opacity="0.45">
+            <rect x="10" y="22" width="112" height="62" rx="3"/>
+            <rect x="10" y="99" width="112" height="62" rx="3"/>
+            <rect x="10" y="176" width="112" height="62" rx="3"/>
+            <path d="M24 42 L108 42 M24 56 L88 56 M24 70 L100 70"/>
+            <path d="M24 119 L108 119 M24 133 L88 133 M24 147 L100 147"/>
+            <path d="M24 196 L108 196 M24 210 L88 210 M24 224 L100 224"/>
+          </g>
+          <g stroke="#e3b451" stroke-width="2.4" fill="none" opacity="0.75" stroke-linejoin="round">
+            <path d="M126 53 C166 53 166 130 196 130"/>
+            <path d="M126 130 L196 130"/>
+            <path d="M126 207 C166 207 166 130 196 130"/>
+            <path d="M188 123 L199 130 L188 137"/>
+          </g>
+          <rect x="204" y="84" width="124" height="92" rx="3" fill="#9d1b2e" stroke="#e3b451" stroke-width="3"/>
+          <g transform="translate(216 104) scale(0.1)">
+            <path fill="#f7efdd" d="M5 15 L12 170 L42 278 L76 363 L134 410 L237 439 L314 427 L373 496 L432 531 L468 573 L509 493 L573 491 L627 461 L712 498 L742 590 L760 575 L746 496 L741 446 L799 367 L839 342 L830 298 L864 211 L920 181 L932 134 L983 104 L949 40 L907 99 L814 141 L746 181 L710 166 L712 124 L683 79 L660 170 L636 183 L631 97 L686 62 L629 38 L558 55 L505 0 L34 0 Z"/>
+          </g>
+          <path fill="#0d2b52" d="M262 108 L266.9 123.2 L282.9 123.2 L270 132.6 L274.9 147.8 L262 138.4 L249.1 147.8 L254 132.6 L241.1 123.2 L257.1 123.2 Z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="label">The manifest</p>
+    <h2 class="press-dark">Five tables, and what is in them</h2>
+    <div class="orn" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" focusable="false"><path fill="#9d1b2e" d="M12 0 L15 9 L24 12 L15 15 L12 24 L9 15 L0 12 L9 9 Z"/></svg>
+    </div>
+    <p class="quiet">Every count below is what 0.1.0 writes, on the current Census vintage.</p>
+    <div class="scroll" role="region" aria-label="The five tables and their row counts" tabindex="0">
+      <table class="sheet">
+        <thead>
+          <tr><th scope="col">Table</th><th scope="col">Model</th><th scope="col">Rows</th><th scope="col">What one row is</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>usa_states</td><td>USA::State</td><td>51</td>
+            <td>A state, or the District of Columbia: a code, a FIPS and a name.</td>
+          </tr>
+          <tr>
+            <td>usa_counties</td><td>USA::County</td><td>3,144</td>
+            <td>A county: a FIPS, a name and its state — Connecticut’s nine planning regions and Alaska’s current census areas included. Carries <code>zips_count</code>.</td>
+          </tr>
+          <tr>
+            <td>usa_cities</td><td>USA::City</td><td>32,058</td>
+            <td>A Census place off the 2025 Gazetteer: a place FIPS unique within its state rather than nationally, a name and a state.</td>
+          </tr>
+          <tr>
+            <td>usa_city_counties</td><td>USA::CityCounty</td><td>33,475</td>
+            <td>A city on a county it lies in: 1,291 places cross a county line and keep every one.</td>
+          </tr>
+          <tr>
+            <td>usa_zips</td><td>USA::ZIP</td><td>40,977</td>
+            <td>A ZIP code: the city it is addressed as, a time zone named as Rails names one, and one county.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="quiet" style="margin-top: 18px">All four records also carry a
+      <code>google_place_id</code>, filled for every county and blank elsewhere until a release
+      fills it. <code>usa_states.counties_count</code> and <code>usa_counties.zips_count</code> are
+      counted from the rows after a seed rather than by a callback, since an upsert runs none.</p>
+  </div>
+</section>
+
+<div class="stripes tight" role="presentation"></div>
+
+<section class="dark onnavy">
+  <div class="wrap">
+    <p class="label">In service</p>
+    <h2 class="press-light">What you get</h2>
+    <div class="cols" style="align-items: start">
+      <div>
+<pre><code>zip = USA::ZIP.find_by code: <span class="s">'90210'</span>
+zip.city         <span class="c"># => 'Beverly Hills'</span>
+zip.time_zone    <span class="c"># => 'Pacific Time (US &amp; Canada)'</span>
+zip.county.fips  <span class="c"># => '06037'</span>
+
+county = zip.county
+county.state.code <span class="c"># => 'CA'</span>
+county.zips_count <span class="c"># => 265</span>
+county.cities     <span class="c"># => [#&lt;USA::City&gt;, ...]</span>
+
+state = county.state
+state.counties_count <span class="c"># => 58</span>
+state.cities         <span class="c"># => [#&lt;USA::City&gt;, ...]</span></code></pre>
+        <p class="cap" style="margin-top: 14px">Five tables and the associations between them, and
+          nothing else: no pages, no controllers, no configuration.</p>
+      </div>
+      <div>
+<pre><code><span class="c"># config/initializers/usa.rb</span>
+ActiveSupport.on_load <span class="s">:usa_zip</span> do
+  has_many :bookings, dependent: :destroy
+
+  scope :served, -> { where.not markets_count: 0 }
+end</code></pre>
+        <p class="cap" style="margin-top: 14px">Each model runs a load hook, so your app adds to it
+          without reopening a file it does not own. The five are <code>:usa_state</code>,
+          <code>:usa_county</code>, <code>:usa_city</code>, <code>:usa_zip</code>, and
+          <code>:usa_record</code>, where you say how all of them connect.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="label">Before you enlist</p>
+    <h2 class="press-dark">Two things worth knowing</h2>
+    <div class="orn" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" focusable="false"><path fill="#9d1b2e" d="M12 0 L15 9 L24 12 L15 15 L12 24 L9 15 L0 12 L9 9 Z"/></svg>
+    </div>
+    <div class="cols">
+      <p class="quiet">The gem registers <code>USA</code>, <code>ZIP</code> and <code>FIPS</code> as
+        acronyms before the engine loads, so a class of yours called <code>Zip</code> stops being
+        found the day you install it. Rename it, or reach <code>USA::ZIP</code> instead.</p>
+      <p class="quiet">An app that sets <code>ActiveRecord::Base.table_name_prefix</code> is not
+        supported: the migrations name <code>usa_states</code> while the models would look for your
+        prefix and the gem’s together.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="stripes" role="presentation"></div>
+
+<footer class="onnavy">
+  <div class="wrap">
+    <div class="twolinks">
+      <a href="https://github.com/claudiob/usa">Source code on GitHub</a>
+      <a href="https://rubydoc.info/gems/usa">API reference on rubydoc.info</a>
+    </div>
+    <div class="feet">
+      <span>usa 0.1.0 — MIT license</span>
+      <span>
+        <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true" focusable="false" style="vertical-align: -7px; margin-right: 8px">
+          <circle cx="32" cy="32" r="29" fill="none" stroke="#e3b451" stroke-width="2.4"/>
+          <path fill="#e3b451" d="M32 4 L37 27 L60 32 L37 37 L32 60 L27 37 L4 32 L27 27 Z"/>
+        </svg>
+        Built at <a href="https://houseaccount.com">HouseAccount</a>
+      </span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
