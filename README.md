@@ -62,6 +62,13 @@ A state has a `code`, a `fips` and a `name`. A county has a `fips`, a `name` and
 has a `fips` -- a Census place code, unique within its state rather than nationally -- a `name`,
 a state, and the one or more counties it lies in, since a city may cross a county line. A ZIP has
 a `code`, the `city` it is addressed as, a `time_zone` named as Rails names one, and one county.
+
+That county and that city are the main one rather than the only one. A ZIP is a delivery route
+rather than an area, and many of them cross a county line: this gem names the county the route
+is chiefly in and the city it is chiefly addressed to, and holds nothing about the others. A
+city is the exception, keeping every county it lies in, which is why `city.counties` answers
+more than one.
+
 Every one of the four also has a `google_place_id`, the ID Google gives the place, which is what
 draws a table of them as a map. It is filled for every state, county and ZIP that Google keeps
 as an area of its kind, and blank for the few it keeps only as a city -- the District of
