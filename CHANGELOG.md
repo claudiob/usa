@@ -7,6 +7,15 @@ For more information about changelogs, check [Keep a Changelog](http://keepachan
 
 ## [Unreleased]
 
+## 0.4.1 - 2026-09-16
+
+* [Fix] The check that refuses a host's own class where one of these models should be is asked
+  when Active Record loads rather than while the app boots. It ran in a `to_prepare` block, and
+  reaching for `State` there pulled Active Record in behind it before initialization was over --
+  which Rails warns about on every boot that does not eager load: a `rake` task, a Heroku release
+  command, a development console. The check itself is unchanged, and still refuses before any of
+  these models is used
+
 ## 0.4.0 - 2026-09-15
 
 * [Breaking change] The models are `State`, `County`, `City`, `CityCounty` and `ZIP`, at the

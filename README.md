@@ -12,7 +12,7 @@ To install on your system, run
 
 To use inside a bundled Ruby project, add this line to the `Gemfile`:
 
-    gem 'usa', '~> 0.4.0'
+    gem 'usa', '~> 0.4.1'
 
 Below 1.0 the pin stops at the next minor rather than the next major, because that is where a
 breaking change may still land. It becomes `~> 1.0` once the API is settled on purpose.
