@@ -10,11 +10,11 @@ class USA::Generators::InstallGeneratorTest < Rails::Generators::TestCase
   test 'an install hands the host every migration, under timestamps of its own' do
     run_generator
 
-    assert_migration 'db/migrate/create_usa_states.rb', /create_table :usa_states/
-    assert_migration 'db/migrate/create_usa_counties.rb', /to_table: :usa_states/
-    assert_migration 'db/migrate/create_usa_zips.rb', /to_table: :usa_counties/
-    assert_migration 'db/migrate/create_usa_cities.rb', /%i\[state_id fips\], unique: true/
-    assert_migration 'db/migrate/create_usa_city_counties.rb', /id: false/
+    assert_migration 'db/migrate/create_states.rb', /create_table USA\.table\(:states\)/
+    assert_migration 'db/migrate/create_counties.rb', /to_table: USA\.table\(:states\)/
+    assert_migration 'db/migrate/create_zips.rb', /to_table: USA\.table\(:counties\)/
+    assert_migration 'db/migrate/create_cities.rb', /%i\[state_id fips\], unique: true/
+    assert_migration 'db/migrate/create_city_counties.rb', /id: false/
     assert_migration 'db/migrate/seed_usa.rb', /up_only \{ USA\.seed \}/
   end
 

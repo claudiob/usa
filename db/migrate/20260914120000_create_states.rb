@@ -1,6 +1,6 @@
-class CreateUSAStates < ActiveRecord::Migration[8.1]
+class CreateStates < ActiveRecord::Migration[8.1]
   def change
-    create_table :usa_states do |t|
+    create_table USA.table(:states) do |t|
       t.string :code, limit: 2, null: false, index: { unique: true }
       t.string :fips, limit: 2, null: false, index: { unique: true }
       t.string :name, null: false, index: { unique: true }

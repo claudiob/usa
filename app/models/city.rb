@@ -1,5 +1,5 @@
 # A city, town or census designated place: what a street address is addressed to.
-class USA::City < USA::Record
+class City < USA::Record
   include USA::Seeded
 
   belongs_to :state
@@ -14,16 +14,13 @@ class USA::City < USA::Record
   # @return [String] the default representation (used in views).
   def to_s = "#{name} (#{state.code})"
 
-  # The name Rails reads off this model: its route, its param key, its partial, its key.
-  def self.model_name = ActiveModel::Name.new(self, nil, 'City')
-
   class << self
   private
 
     def natural_key = %i[state_id fips]
 
     def seeds
-      states = USA::State.pluck(:code, :id).to_h
+      states = State.pluck(:code, :id).to_h
       csv('cities').lazy.map do |row|
         { fips: row['fips'], name: row['name'], state_id: states.fetch(row['state']),
           google_place_id: row['google_place_id'], }
@@ -32,4 +29,4 @@ class USA::City < USA::Record
   end
 end
 
-ActiveSupport.run_load_hooks :usa_city, USA::City
+ActiveSupport.run_load_hooks :usa_city, City

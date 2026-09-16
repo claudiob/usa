@@ -12,7 +12,7 @@ To install on your system, run
 
 To use inside a bundled Ruby project, add this line to the `Gemfile`:
 
-    gem 'usa', '~> 0.3.0'
+    gem 'usa', '~> 0.4.0'
 
 Below 1.0 the pin stops at the next minor rather than the next major, because that is where a
 breaking change may still land. It becomes `~> 1.0` once the API is settled on purpose.
@@ -27,31 +27,35 @@ bin/rails db:migrate      # the five tables, and every row in them
 The last one takes about a minute: it writes 51 states, 3,144 counties, some 32,000 cities and
 some 41,000 ZIPs.
 
+Install only the tables you join to. Delete the migrations for the rest before you run them, and
+`USA.seed` passes over what is not there — an app that never asks what city an address is in
+keeps three tables rather than five.
+
 **A database made from `db/schema.rb` has the tables and none of the rows.** A dump carries no
-data, so `db:schema:load`, `db:test:prepare` and a fresh clone all leave the five tables empty.
-Run `bin/rails db:usa:seed`, or call `USA.seed` from your own `db/seeds.rb`. The same command is
-how a database catches up with a release that added rows: every write is an upsert keyed on the
-code or the FIPS, so it inserts what is missing, updates what this gem owns, and leaves the id
-of every row you already had exactly where it was.
+data, so `db:schema:load`, `db:test:prepare` and a fresh clone all leave the tables empty. Run
+`bin/rails db:usa:seed`, or call `USA.seed` from your own `db/seeds.rb`. The same command is how
+a database catches up with a release that added rows: every write is an upsert keyed on the code
+or the FIPS, so it inserts what is missing, updates what this gem owns, and leaves the id of
+every row you already had exactly where it was.
 
 ## What you get
 
 ```ruby
-zip = USA::ZIP.find_by code: '90210'  # => #<USA::ZIP>
-zip.city                              # => 'Beverly Hills'
-zip.time_zone                         # => 'Pacific Time (US & Canada)'
-zip.county                            # => #<USA::County>
-zip.county.fips                       # => '06037'
-zip.county.state.code                 # => 'CA'
+zip = ZIP.find_by code: '90210'  # => #<ZIP>
+zip.city                         # => 'Beverly Hills'
+zip.time_zone                    # => 'Pacific Time (US & Canada)'
+zip.county                       # => #<County>
+zip.county.fips                  # => '06037'
+zip.county.state.code            # => 'CA'
 
 county = zip.county
-county.zips_count                     # => 508
-county.cities                         # => [#<USA::City>, ...]
+county.zips_count                # => 508
+county.cities                    # => [#<City>, ...]
 
 state = county.state
-state.counties_count                  # => 58
-state.counties                        # => [#<USA::County>, ...]
-state.cities                          # => [#<USA::City>, ...]
+state.counties_count             # => 58
+state.counties                   # => [#<County>, ...]
+state.cities                     # => [#<City>, ...]
 ```
 
 A state has a `code`, a `fips` and a `name`. A county has a `fips`, a `name` and a state. A city
@@ -64,8 +68,37 @@ as an area of its kind, and blank for the few it keeps only as a city -- the Dis
 Columbia, Broomfield County, Wrangell -- for the ZIPs it folds into a neighbor's, and for every
 city until a release fills them.
 
-Two counter caches are kept by the seed rather than by a callback: `usa_states.counties_count`
-and `usa_counties.zips_count`.
+Two counter caches are kept by the seed rather than by a callback: `states.counties_count` and
+`counties.zips_count`.
+
+## The names are yours to write, not to choose
+
+`State`, `County`, `City`, `CityCounty` and `ZIP` are this gem's classes, on `states`,
+`counties`, `cities`, `city_counties` and `zips`. They are the words your routes, forms,
+partials and locale keys already use, so `belongs_to :zip` finds the class, `zips_path` draws
+the page and `zip[...]` names the field -- nothing has to be told which gem the model came from.
+
+Which means this gem takes five names in your app, and a class of your own called `Zip`, `City`
+or `State` cannot stand beside them. Rails gives your `app/models/city.rb` precedence over an
+engine's, silently, so the gem checks at boot and refuses to start rather than let every
+association here point at a class it knows nothing about:
+
+    The usa gem defines City, and a class of your own has taken the name. Rename yours: …
+
+The gem also registers `USA`, `ZIP` and `FIPS` as acronyms, so `ZIP` is the spelling everywhere
+-- a heading, a route helper, a migration's class name.
+
+If you want these tables to themselves, name them:
+
+```ruby
+# config/initializers/usa.rb
+USA.table_name_prefix = 'usa_'
+```
+
+One setting, read wherever a table is named: the models, the counter queries, and the migrations
+the generator hands you. Set it before anything queries, which an initializer is. The class
+names are not configurable -- Active Record resolves `belongs_to :zip` by asking for a class
+called `ZIP`, and nothing but a class of that name will do.
 
 ## Making them yours
 
@@ -80,31 +113,32 @@ ActiveSupport.on_load(:usa_zip) do
 end
 ```
 
-`:usa_state`, `:usa_county`, `:usa_city` and `:usa_zip` are the four, and `:usa_record` is where
-an app says how all of them connect -- a reading role, say, which these models otherwise know
-nothing about:
+`:usa_state`, `:usa_county`, `:usa_city`, `:usa_city_county` and `:usa_zip` are the five, and
+`:usa_record` is where an app says how all of them connect -- a reading role, say, which these
+models otherwise know nothing about:
 
 ```ruby
 ActiveSupport.on_load(:usa_record) { connects_to database: { writing: :primary, reading: :reader } }
 ```
-
-Each model answers by the word you mean rather than by the table under it, so a page listing
-ZIPs writes `zips_path`, a form posts `zip[...]`, a partial lives at `zips/_row` and a locale
-key reads `zip` -- while the table stays `usa_zips`. A gem that resolves a model from a route
-finds it without being told.
 
 Columns of your own go on these tables in a migration of your own. They survive every seed: this
 gem writes only the columns it ships.
 
 ## Adopting it in an app that already has these tables
 
-The gem registers `USA`, `ZIP` and `FIPS` as acronyms, so a class of yours called `Zip` stops
-being found the day you install it -- rename it, or reach `USA::ZIP` instead. Point your foreign
-keys at `usa_zips.id` rather than at a `zips` of your own, and where your rows were loaded with
-explicit ids, run `setval` on the sequence before the first seed, or the first insert collides.
+Your tables are already called `states`, `counties` and `zips`, so there is nothing to rename:
+add the columns this gem's own carry that yours lack -- `google_place_id`, the counter caches,
+a ZIP's city and time zone -- and seed. Every id stays where it is, because the seed upserts on
+the code or the FIPS rather than on the id, and every foreign key of yours goes on pointing at
+the row it pointed at.
 
-The gem does not support an app that sets `ActiveRecord::Base.table_name_prefix`: its migrations
-name `usa_states` while the models would look for the prefix and yours together.
+Delete the models you had for them, and say through the load hooks what they said. Where your
+rows were loaded with explicit ids, run `setval` on the sequence before the first seed, or the
+first insert collides.
+
+Two things to know. A class of yours called `Zip` stops being found the day you install this,
+which the boot check will tell you. And `State` and `County` cascade to `cities` with
+`dependent: :destroy`, so an app that skipped those tables must not destroy one.
 
 ## Development
 

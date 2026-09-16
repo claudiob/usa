@@ -1,5 +1,5 @@
 # A state of the United States, or the District of Columbia.
-class USA::State < USA::Record
+class State < USA::Record
   include USA::Seeded
 
   has_many :counties, dependent: :destroy
@@ -9,24 +9,25 @@ class USA::State < USA::Record
   validates :fips, presence: true, length: { is: 2 }, uniqueness: true
   validates :name, presence: true, uniqueness: true
 
-  # How many counties a state holds, asked of the rows: an upsert runs no callback to keep it.
-  COUNTIES = 'SELECT COUNT(*) FROM usa_counties WHERE usa_counties.state_id = usa_states.id'
-
   # Counts the counties of every state the count is wrong for, and touches none of the others.
   # @return [void]
   def self.recount_counties
-    where("counties_count <> (#{COUNTIES})").
-      update_all [ "counties_count = (#{COUNTIES}), updated_at = ?", Time.current ]
+    where("counties_count <> (#{counted_counties})").
+      update_all [ "counties_count = (#{counted_counties}), updated_at = ?", Time.current ]
   end
 
   # @return [String] the default representation (used in views).
   def to_s = name
 
-  # The name Rails reads off this model: its route, its param key, its partial, its key.
-  def self.model_name = ActiveModel::Name.new(self, nil, 'State')
-
   class << self
   private
+
+    # How many counties a state holds, asked of the rows: an upsert runs no callback to keep it.
+    def counted_counties
+      theirs = County.table_name
+
+      "SELECT COUNT(*) FROM #{theirs} WHERE #{theirs}.state_id = #{table_name}.id"
+    end
 
     def natural_key = :code
 
@@ -39,4 +40,4 @@ class USA::State < USA::Record
   end
 end
 
-ActiveSupport.run_load_hooks :usa_state, USA::State
+ActiveSupport.run_load_hooks :usa_state, State

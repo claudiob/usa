@@ -7,6 +7,26 @@ For more information about changelogs, check [Keep a Changelog](http://keepachan
 
 ## [Unreleased]
 
+## 0.4.0 - 2026-09-15
+
+* [Breaking change] The models are `State`, `County`, `City`, `CityCounty` and `ZIP`, at the
+  top level rather than under `USA::`. A host writes `belongs_to :zip` and Active Record finds
+  the class, where before it refused anything but `class_name: 'USA::ZIP'` -- its `compute_type`
+  wants a class whose own name is the one it asked for, so no alias or configuration could stand
+  in. The `model_name` overrides that made the old classes answer as `ZIP` and `County` are gone
+  with the namespace they were papering over
+* [Breaking change] The tables are `states`, `counties`, `cities`, `city_counties` and `zips`.
+  A host that wants them to itself sets `USA.table_name_prefix = 'usa_'` in an initializer and
+  gets the old names back -- one setting, read wherever a table is named, migrations included
+* [Feature] `USA.verify_models` refuses a host whose own class stands where one of these models
+  should be, at boot and in one sentence. Zeitwerk gives an app's file precedence over an
+  engine's, silently, so a host holding `app/models/city.rb` would otherwise find every
+  association here pointing at a class this gem knows nothing about
+* [Feature] `USA.seed` passes over a table the host never created, so an app that joins to three
+  of the five installs three and seeds three. `bin/rails db:usa:seed` goes on working there
+* [Feature] `USA.table` names a table the way the host does, which is what the shipped migrations
+  now create and what a host's own migration can read
+
 ## 0.3.0 - 2026-09-14
 
 * [Feature] Every model answers by the word a host means rather than by the table under it:

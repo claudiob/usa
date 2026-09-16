@@ -1,5 +1,5 @@
 # A ZIP code, and the city, time zone and county the Postal Service delivers it in.
-class USA::ZIP < USA::Record
+class ZIP < USA::Record
   include USA::Seeded
 
   belongs_to :county, counter_cache: true
@@ -11,16 +11,13 @@ class USA::ZIP < USA::Record
   # @return [String] the default representation (used in views).
   def to_s = code
 
-  # The name Rails reads off this model: its route, its param key, its partial, its key.
-  def self.model_name = ActiveModel::Name.new(self, nil, 'ZIP')
-
   class << self
   private
 
     def natural_key = :code
 
     def seeds
-      counties = USA::County.pluck(:fips, :id).to_h
+      counties = County.pluck(:fips, :id).to_h
       csv('zips').lazy.map do |row|
         { code: row['code'], city: row['city'], time_zone: row['time_zone'],
           county_id: counties.fetch(row['county']), google_place_id: row['google_place_id'], }
@@ -29,4 +26,4 @@ class USA::ZIP < USA::Record
   end
 end
 
-ActiveSupport.run_load_hooks :usa_zip, USA::ZIP
+ActiveSupport.run_load_hooks :usa_zip, ZIP
