@@ -44,7 +44,7 @@ module USA
     theirs = models.reject { |model| model < Record }
     return if theirs.empty?
 
-    raise Error, "The usa gem defines #{theirs.join ' and '}, and a class of your own has " \
+    raise Error, "The usa gem defines #{theirs.to_sentence}, and a class of your own has " \
       'taken the name. Rename yours: Rails gives an app’s file precedence over an engine’s, ' \
       'silently, so the models this gem ships would point at a class it knows nothing about.'
   end
